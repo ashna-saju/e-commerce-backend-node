@@ -1,20 +1,3 @@
-// import EcSuppliers from "../../Models/ec_suppliers";
-// import { Request, Response } from 'express';
- 
-// const supplierRegistration = async (req: Request, res: Response): Promise<void> => {
-//     try {
-//         const { full_name, e_mail, password, profile_pic } = req.body;
-//         await EcSuppliers.create({ full_name, e_mail, password, profile_pic: Buffer.from(profile_pic), }, { raw: true });
- 
-//         res.status(200).json({ message: "Successfully inserted data in the table." })
-//     }
-//     catch (error: any) {
-//         console.log(error);
-//         res.status(500).json({ error: error.toString() });//internal server error
-//     }
-// };
-// export default supplierRegistration;
-
 import { Op } from "sequelize";
 import EcSuppliers from "../../Models/ec_suppliers";
 import { Request, Response } from "express";
@@ -42,28 +25,5 @@ const supplierRegistration = async (
     res.status(425).json({ message: "data is missing" });
   }
 };
-
-const supplierProfile = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  // const { name, age } = req.query;
-  // res.send(`${name} , ${age} `);
-
-  const { full_name, e_mail, password, profile_pic } = req.body;
-  console.log(
-    `hi hello ...............${full_name} , ${e_mail} ,${password},&${profile_pic}`
-  );
-
-  const found = await EcSuppliers.findAll({
-    where: { e_mail: { [Op.in]: ["Aljo@gmail.com"] } },
-    raw: true,
-  });
-  console.log(found);
-
-  // res.send(`${full_name} , ${e_mail} ,${password},&${profile_pic}`);
-  res.send(found);
-  //   return found;
-};
 export default supplierRegistration;
-export { supplierProfile };
+

@@ -3,70 +3,78 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import EcCustomers from "../../Models/ec_customers";
 import EcSuppliers from "../../Models/ec_suppliers";
-
+ 
 const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { client_type, e_mail, password } = req.body;
-    if (client_type == "customer") {
+ 
+    if (client_type === "customer") {
       const found = await EcCustomers.findOne({
         where: { e_mail },
         raw: true,
       });
-
-      console.log(bcrypt.compareSync(password, found?.password as string));
-
-      if (bcrypt.compareSync(password, found?.password as string)) {
+ 
+      if (!found) {
+        res.status(401).json({ message: "Authentication failed" });
+        return;
+      }
+ 
+      if (found?.password && bcrypt.compareSync(password, found.password)) {
         const token = jwt.sign(
           {
-            //payloads
-            userID: found?.registration_id,
+            userID: found.registration_id,
             client_type,
           },
           "your-secret-key",
-          { expiresIn: "24h" } //token expiration time
+          { expiresIn: "24h" }
         );
-        // res.send(`message : login successfully`);
-        res.json(token);
+        res.status(200).json({ token });
       } else {
-        res.status(401).json({ message: `authentication failed` });
+        res.status(401).json({ message: "Authentication failed" });
       }
-    } else if ("supplier") {
-      let found = await EcSuppliers.findOne({
-        where: { e_mail: { e_mail } },
+    } else if (client_type === "supplier") {
+      const found = await EcSuppliers.findOne({
+        where: { e_mail },
         raw: true,
       });
-
-      console.log(bcrypt.compareSync(password, found?.password as string));
-
-      if (bcrypt.compareSync(password, found?.password as string)) {
-        res.send(`message : login s successfully`);
-      } else {
-        res.status(401).json({ message: `authentication failed` });
+ 
+      if (!found) {
+        res.status(401).json({ message: "Authentication failed" });
+        return;
       }
+ 
+      if (bcrypt.compareSync(password, found.password)) {
+        res.status(200).json({ message: "Login successful" });
+      } else {
+        res.status(401).json({ message: "Authentication failed" });
+      }
+    } else {
+      res.status(400).json({ message: "Invalid client_type" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-const customerProfile = async (req: Request, res: Response): Promise<void> => {
-  const { client_type } = req.body;
-  let found = {};
-  if (client_type == "customer") {
-    found = await EcCustomers.findAll({
-      where: {},
-      raw: true,
-    });
-  } else if (client_type == "supplier") {
-    found = await EcSuppliers.findAll({
-      where: {},
-      raw: true,
-    });
-  }
-  console.log(found);
-
-  res.send(found);
-};
-
+ 
+ 
+// const customerProfile = async (req: Request, res: Response): Promise<void> => {
+//       const { client_type } = req.body;
+//       let found = {};
+//       if (client_type == "customer") {
+//         found = await EcCustomers.findAll({
+//           where: {},
+//           raw: true,
+//         });
+//       } else if (client_type == "supplier") {
+//         found = await EcSuppliers.findAll({
+//           where: {},
+//           raw: true,
+//         });
+//       }
+//       console.log(found);
+   
+//       res.send(found);
+//     };
 export default login;
-export { customerProfile };
+// export { customerProfile };

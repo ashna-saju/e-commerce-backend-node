@@ -6,8 +6,12 @@ import supplierRouter from './router/supplier-routes';
 import router from './router/Login-router';
 import customerRouter from './router/customer-router';
 import { middlewareExample1, middlewareExample2} from './middleware/middlewareExample';
+import { stopMongoDb } from './services/mongodb';
+import sequelizeSync from './services/sequelize';
 const app = express();
 const port = process.env.PORT || 3000;
+
+sequelizeSync();
 // sequelize.sync({
 //   force: false
 // })
@@ -86,8 +90,16 @@ app.get('/example',middlewareExample1,middlewareExample2,(req:CustomerRequest,re
 
 app.use('/api/v1',supplierRouter);
 app.use('/api/v2',customerRouter);
-app.use(router);
+app.use('/login',router);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+process.on("SIGINT",()=>{
+  sequelize.close(); stopMongoDb();
+})
+
+process.on("exit",()=>{
+  sequelize.close(); stopMongoDb();
+})

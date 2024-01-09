@@ -1,14 +1,18 @@
 import express from "express";
 import { Request, Response } from "express";
-import login , { customerProfile }  from "../controller/authentication/login.ts";
-import { verifyToken } from "../middleware/verifyJWT.ts";
+import login from "../controller/authentication/login.ts";
 
 const router = express.Router();
-router.get("/viewProfile", (req: Request, res: Response) => {
-  customerProfile(req, res);
-});
 
-router.post("/postData", (req: Request, res: Response) => {
+// router.post("/login",(req: Request, res: Response) => {
+//   customerProfile(req, res);
+// });
+
+// router.get("/viewProfile", (req: Request, res: Response) => {
+//   customerProfile(req, res);
+// });
+
+router.post("/", (req: Request, res: Response) => {
   login(req, res);
 });
 
