@@ -3,19 +3,20 @@ import express from 'express';
 import  EcSuppliers  from '../src/Models/ec_suppliers'
 import sequelize from './config/sequelize-config'
 import supplierRouter from './router/supplier-routes';
-import router from './router/supplierLogin-router';
+import router from './router/Login-router';
+import customerRouter from './router/customer-router';
+import { middlewareExample1, middlewareExample2} from './middleware/middlewareExample';
 const app = express();
 const port = process.env.PORT || 3000;
-
-sequelize.sync({
-  force: false
-})
-.then(() => {
-  console.log('Tables synchronized successfully.');
-})
-.catch((error:unknown) => {
-  console.error('Error synchronizing models:', error);
-});
+// sequelize.sync({
+//   force: false
+// })
+// .then(() => {
+//   console.log('Tables synchronized successfully.');
+// })
+// .catch((error:unknown) => {
+//   console.error('Error synchronizing models:', error);
+// });
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // app.get("/", (req: Request, res: Response) => {
@@ -61,9 +62,32 @@ app.use(express.json());
 
 //     res.status(200).json({ message: "Implement logic to find a supplier." });
 // });
+app.use((req,res,next)=>{
+  console.log("hi from middleware");
+  next();
+})
 
-app.use(supplierRouter);
+interface CustomerRequest extends Request{
+  customProperty?:object;
+}
+// app.use((req:CustomerRequest,res,next)=>{
+// middlewareExample1(req,res,next); 
+// });
+
+// app.use((req,res,next)=>{
+// middlewareExample2(req,res,next);
+// });
+
+app.get('/example',middlewareExample1,middlewareExample2,(req:CustomerRequest,res:Response)=>{
+  console.log('Route Handler-Handling Request');
+  const customProperty=req.customProperty??'Not Available';
+  res.send(customProperty);
+});
+
+app.use('/api/v1',supplierRouter);
+app.use('/api/v2',customerRouter);
 app.use(router);
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

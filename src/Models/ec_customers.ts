@@ -1,8 +1,8 @@
-import { Model, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 import sequelize  from '../config/sequelize-config';
-import EcSuppliers from '../../types/modelTypes/ec_suppliers';
 import bcrypt from 'bcrypt';
-EcSuppliers.init(
+import EcCustomers from '../../types/modelTypes/ec_customers';
+EcCustomers.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -38,7 +38,7 @@ EcSuppliers.init(
     registration_time_stamp: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -51,15 +51,15 @@ EcSuppliers.init(
   },
   {
     sequelize,
-    modelName: 'EcSuppliers', 
-    tableName: 'ec_suppliers', 
+    modelName: 'EcCustomers',
+    tableName: 'ec_customers',
     hooks:{
-        beforeCreate: (user:EcSuppliers)=>{
+        beforeCreate: (user:EcCustomers)=>{
             const hashedPassword = bcrypt.hashSync(user.password,bcrypt.genSaltSync(10));
             user.password=hashedPassword;
         }
     }
-  }
-);
  
-export default EcSuppliers;
+  });
+ 
+export default EcCustomers;
