@@ -43,11 +43,26 @@ const login = async (req: Request, res: Response): Promise<void> => {
         return;
       }
  
-      if (bcrypt.compareSync(password, found.password)) {
-        res.status(200).json({ message: "Login successful" });
+      // if (bcrypt.compareSync(password, found.password)) {
+      //   res.status(200).json({ message: "Login successful" });
+      // } else {
+      //   res.status(401).json({ message: "Authentication failed" });
+      // }
+      /////////////////////////////////////////////////////////////////////////
+      if (found?.password && bcrypt.compareSync(password, found.password)) {
+        const token = jwt.sign(
+          {
+            userID: found.registration_id,
+            client_type,
+          },
+          "your-secret-key",
+          { expiresIn: "24h" }
+        );
+        res.status(200).json({ token });
       } else {
         res.status(401).json({ message: "Authentication failed" });
       }
+    /////////////////////////////////////////////////////Getting tokens for suppilers
     } else {
       res.status(400).json({ message: "Invalid client_type" });
     }
