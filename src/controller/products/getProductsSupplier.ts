@@ -6,17 +6,16 @@ let db: Db = client.db('e_commerce');
  
 const getProductSupplier = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { registrationId, client_type } = req.body.jwt_decoded;
-        if (!registrationId || client_type != 'supplier') {
+        const { userID, client_type } = req.body.jwt_decoded;
+        if (!userID || client_type != 'supplier') {
             res.status(404).json({ error: 'Bad request' });
         }
         const productCollection = db.collection('products');
-        const result = await productCollection.find({ supplier_registration_id: registrationId }).toArray();
+        const result = await productCollection.find({ supplier_id: userID }).toArray();
         res.status(200).json({ ...result });
     }
     catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
- 
 export default getProductSupplier;

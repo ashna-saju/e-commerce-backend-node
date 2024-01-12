@@ -42,13 +42,6 @@ const login = async (req: Request, res: Response): Promise<void> => {
         res.status(401).json({ message: "Authentication failed" });
         return;
       }
- 
-      // if (bcrypt.compareSync(password, found.password)) {
-      //   res.status(200).json({ message: "Login successful" });
-      // } else {
-      //   res.status(401).json({ message: "Authentication failed" });
-      // }
-      /////////////////////////////////////////////////////////////////////////
       if (found?.password && bcrypt.compareSync(password, found.password)) {
         const token = jwt.sign(
           {
@@ -62,7 +55,6 @@ const login = async (req: Request, res: Response): Promise<void> => {
       } else {
         res.status(401).json({ message: "Authentication failed" });
       }
-    /////////////////////////////////////////////////////Getting tokens for suppilers
     } else {
       res.status(400).json({ message: "Invalid client_type" });
     }
@@ -71,25 +63,5 @@ const login = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
- 
- 
-// const customerProfile = async (req: Request, res: Response): Promise<void> => {
-//       const { client_type } = req.body;
-//       let found = {};
-//       if (client_type == "customer") {
-//         found = await EcCustomers.findAll({
-//           where: {},
-//           raw: true,
-//         });
-//       } else if (client_type == "supplier") {
-//         found = await EcSuppliers.findAll({
-//           where: {},
-//           raw: true,
-//         });
-//       }
-//       console.log(found);
-   
-//       res.send(found);
-//     };
 export default login;
-// export { customerProfile };
+

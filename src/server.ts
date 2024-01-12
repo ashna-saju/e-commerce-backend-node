@@ -8,8 +8,21 @@ import customerRouter from './router/customer-router';
 import { middlewareExample1, middlewareExample2} from './middleware/middlewareExample';
 import { stopMongoDb } from './services/mongodb';
 import sequelizeSync from './services/sequelize';
+import cors from 'cors';
+import { Server, Socket } from "socket.io";
+import { createServer } from 'node:http';
+import { initializeSocket } from './services/socket';
 const app = express();
+const server=createServer(app);
+
+const io=initializeSocket(server)
+    //creating an instance of the socket io
 const port = process.env.PORT || 3000;
+// const io = new Server(server, httpServer, {
+//   cors: {
+//     origin: 'http://localhost:8080', // Add a colon after "http"
+//   },
+// });
 
 sequelizeSync();
 // sequelize.sync({
@@ -21,6 +34,7 @@ sequelizeSync();
 // .catch((error:unknown) => {
 //   console.error('Error synchronizing models:', error);
 // });
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // app.get("/", (req: Request, res: Response) => {
@@ -92,14 +106,34 @@ app.use('/api/v1',supplierRouter);
 app.use('/api/v2',customerRouter);
 app.use('/login',router);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  console.log('socket is',socket);
+  socket.emit("event emitted","Hello World");
+  socket.on('out of stock emit received',()=>{
+  })
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
 });
 
+
+
+// Socket.on('disconnect',()=>){
+//   console.log('User disconnected');
+// });
+
+
+
+server.listen(3000, () => {
+  console.log(`Server is running on port ${port}`);
+});
 process.on("SIGINT",()=>{
   sequelize.close(); stopMongoDb();
+  process.exit();
 })
 
 process.on("exit",()=>{
   sequelize.close(); stopMongoDb();
 })
+export default io;

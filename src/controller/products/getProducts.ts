@@ -1,25 +1,28 @@
 import { client } from "../../services/mongodb";
-import { Db, ObjectId } from 'mongodb';
+import { Db } from 'mongodb';
 import { Request, Response } from "express";
- 
+
 const db: Db = client.db('e_commerce');
- 
-const getProduct = async (req: Request, res: Response): Promise<void> => {
+
+const getProducts = async (req: Request, res: Response): Promise<void> => {
+    // try {
+    //     const productCollection = db.collection('products');
+    //     const result = await productCollection.find().toArray();
+    //     console.log(result);
+    //     res.status(200).json(result);
+    // } catch (error) {
+    //     res.status(500).json({ status: "Internal Server Error" });
+    // }
+
     try {
-        const { product_id } = req.query;
-        const { client_type } = req.body.jwt_decoded;
-        if (!product_id || client_type != 'supplier') {
-            res.status(404).json({ error: "Bad request" });
-        }
+        const { userID, client_type } = req.body.jwt_decoded;
         const productCollection = db.collection('products');
-        const filter = new ObjectId(product_id as string)
-        const result = await productCollection.find({ _id: filter }).toArray();
-        console.log(result)
-        res.status(200).json(result);
+        const result = await productCollection.find({ userID }).toArray();
+        res.status(200).json({ ...result });
     }
     catch (error) {
-        res.status(500).json({ status: "Internal Server Error" });
+        res.status(500).json({ message: 'Internal server error' });
     }
 }
- 
-export default getProduct;
+
+export default getProducts;
